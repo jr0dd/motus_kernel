@@ -936,6 +936,9 @@ int usb_ept_queue_xfer(struct usb_endpoint *ept, struct usb_request *_req)
 	if (length > 0x4000)
 		return -EMSGSIZE;
 
+	if (ui == NULL)
+		return -EBUSY;
+
 	if (ui->in_lpm) {
 		req->req.status = usb_remote_wakeup();
 		if (req->req.status) {
