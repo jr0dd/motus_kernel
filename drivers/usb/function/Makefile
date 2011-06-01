@@ -10,8 +10,8 @@ obj-$(CONFIG_USB_FUNCTION_MASS_STORAGE)	+= mass_storage.o
 obj-$(CONFIG_USB_FUNCTION_DIAG)		+= diag.o
 obj-$(CONFIG_USB_FUNCTION_SERIAL)       += serial.o
 obj-$(CONFIG_USB_FUNCTION_RNDIS)        += rndis.o
-ifeq (y, $(findstring y, $(CONFIG_KERNEL_MOTOROLA) $(CONFIG_MACH_MOT)))
-obj-$(CONFIG_USB_FUNCTION_ETHER)	+= ether.o
-else #ifeq ($(CONFIG_KERNEL_MOTOROLA),y)
+#ifeq (y, $(findstring y, $(CONFIG_KERNEL_MOTOROLA) $(CONFIG_MACH_MOT)))
+#obj-$(CONFIG_USB_FUNCTION_ETHER)	+= ether.o
+#else #ifeq ($(CONFIG_KERNEL_MOTOROLA),y)
 obj-$(CONFIG_USB_FUNCTION_ETHER)	+= ether_cdc_ecm.o
-endif #ifeq ($(CONFIG_KERNEL_MOTOROLA),y)
+#endif #ifeq ($(CONFIG_KERNEL_MOTOROLA),y)
