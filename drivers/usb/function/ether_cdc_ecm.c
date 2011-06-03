@@ -1058,6 +1058,9 @@ static void  eth_unbind(void *_ctxt)
 {
 	struct eth_dev   *dev = (struct eth_dev *)_ctxt ;
 
+	if (_ctxt == NULL || dev == NULL)
+		return;
+
 	pr_debug("%s ()\n", __func__);
 	if (!dev)
 		return ;
@@ -1100,6 +1103,9 @@ static void  eth_bind(void *_ctxt)
 	struct device		*get_dev;
 
 	get_dev = usb_get_device();
+
+	if (get_dev == NULL)
+		return;
 
 	ret = usb_msm_get_next_ifc_number(&usb_func_ether);
 	eth_control_intf.bInterfaceNumber = ret;
