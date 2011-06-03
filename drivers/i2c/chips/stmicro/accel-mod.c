@@ -443,7 +443,12 @@ static int accel_suspend(struct i2c_client *client, pm_message_t mesg)
         oldmode = atomic_read(&accel_info.mode);
         oldodr = atomic_read(&accel_info.odr);
         oldgrange = atomic_read(&accel_info.g_range);
-        accel_i2c_set_config(0,0,0,0);
+
+        /* Only suspend if we're on the lowest frequency
+           This is needed to allow some apps to operate when
+           the screen is off. */
+        if (oldodr == 0)
+            accel_i2c_set_config(0,0,0,0);
 
 	dprintk ("driver suspended");
 	client=client;
