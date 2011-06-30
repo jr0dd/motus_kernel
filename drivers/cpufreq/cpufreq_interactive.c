@@ -55,13 +55,16 @@ static struct work_struct freq_scale_down_work;
 static cpumask_t up_cpumask;
 static cpumask_t down_cpumask;
 
+/* Go to max speed when CPU load at or above this value. */
+#define DEFAULT_GO_MAXSPEED_LOAD 85
+static unsigned long go_maxspeed_load;
+
 /*
  * The minimum amount of time to spend at a frequency before we can ramp down.
  */
 #define DEFAULT_MIN_SAMPLE_TIME 80000;
 static unsigned long min_sample_time;
 
-#define LOAD_SCALE_MAX 85
 
 #define DEBUG 0
 #define BUFSZ 128
@@ -240,7 +243,7 @@ static void cpufreq_interactive_timer(unsigned long data)
 	if (load_since_change > cpu_load)
 		cpu_load = load_since_change;
 
-	if (cpu_load >= LOAD_SCALE_MAX)
+	if (cpu_load >= go_maxspeed_load)
 		new_freq = pcpu->policy->max;
 	else
 		new_freq = pcpu->policy->max * cpu_load / 100;
@@ -490,6 +493,21 @@ static void cpufreq_interactive_freq_down(struct work_struct *work)
 	}
 }
 
+static ssize_t show_go_maxspeed_load(struct cpufreq_policy *policy,
+				char *buf)
+{
+	return sprintf(buf, "%lu\n", go_maxspeed_load);
+}
+
+static ssize_t store_go_maxspeed_load(struct cpufreq_policy *policy,
+				const char *buf, size_t count)
+{
+	return strict_strtoul(buf, 0, &go_maxspeed_load);
+}
+
+static struct freq_attr go_maxspeed_load_attr = __ATTR(go_maxspeed_load, 0644,
+		show_go_maxspeed_load, store_go_maxspeed_load);
+
 static ssize_t show_min_sample_time(struct cpufreq_policy *policy,
 				char *buf)
 {
@@ -506,6 +524,7 @@ static struct freq_attr min_sample_time_attr = __ATTR(min_sample_time, 0644,
 		show_min_sample_time, store_min_sample_time);
 
 static struct attribute *interactive_attributes[] = {
+	&go_maxspeed_load_attr.attr,
 	&min_sample_time_attr.attr,
 	NULL,
 };
@@ -581,6 +600,7 @@ static int __init cpufreq_interactive_init(void)
 	struct cpufreq_interactive_cpuinfo *pcpu;
 	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
 
+	go_maxspeed_load = DEFAULT_GO_MAXSPEED_LOAD;
 	min_sample_time = DEFAULT_MIN_SAMPLE_TIME;
 
 	/* Initalize per-cpu timers */
